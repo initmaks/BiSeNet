@@ -78,7 +78,7 @@ class MscEvalV0(object):
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
                 })
-                wandb.log({"valid_img":log_img})
+                wandb.log({"valid_img":log_img},commit=False)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())

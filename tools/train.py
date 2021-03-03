@@ -210,7 +210,7 @@ def train():
                 "loss_meter":loss_meter,
                 "loss_pre_meter":loss_pre_meter,
                 "loss_aux_meters":loss_aux_meters   
-            })
+            },commit=False)
         
         if (it + 1) % 5000 == 0 and dist.get_rank() == 0:
             # dump the model and evaluate the result
@@ -221,7 +221,7 @@ def train():
             logger.info('\nevaluating the model')
             heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns)
             logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
-            wandb.log({k:v for k,v in zip(heads,mious)})
+            wandb.log({k:v for k,v in zip(heads,mious)},step=it)
     return
 
 
