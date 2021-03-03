@@ -70,14 +70,15 @@ class MscEvalV0(object):
                 minlength=n_classes ** 2
                 ).view(n_classes, n_classes)
             if i < 100:
-                wandb.log(wandb.Image(imgs[0].cpu().detach().numpy(), masks={
+                log_img = wandb.Image(imgs[0].permute([1,2,0]).cpu().detach().numpy(), masks={
                     "predictions" : {
                         "mask_data" : preds[0].cpu().detach().numpy()
                     },
                     "ground_truth" : {
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
-                }))
+                })
+                wandb.log({"valid_img:",log_img})
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
