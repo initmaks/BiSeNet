@@ -33,7 +33,7 @@ class MscEvalV0(object):
         self.flip = flip
         self.ignore_label = ignore_label
 
-    def __call__(self, net, dl, n_classes):
+    def __call__(self, net, dl, n_classes,it=None):
         ## evaluate
         hist = torch.zeros(n_classes, n_classes).cuda().detach()
         if dist.is_initialized() and dist.get_rank() != 0:
@@ -69,7 +69,7 @@ class MscEvalV0(object):
                 label[keep] * n_classes + preds[keep],
                 minlength=n_classes ** 2
                 ).view(n_classes, n_classes)
-            if i < 25:
+            if i < 25 and it:
                 log_img = wandb.Image(imgs[0].permute([1,2,0]).cpu().detach().numpy(), masks={
                     "predictions" : {
                         "mask_data" : preds[0].cpu().detach().numpy()
@@ -78,7 +78,7 @@ class MscEvalV0(object):
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
                 })
-                wandb.log({"valid_img":log_img},commit=False)
+                wandb.log({"valid_img":log_img},step=it)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
@@ -194,7 +194,7 @@ class MscEvalCrop(object):
 
 
 @torch.no_grad()
-def eval_model(net, ims_per_gpu, im_root, im_anns):
+def eval_model(net, ims_per_gpu, im_root, im_anns,iteration):
     is_dist = dist.is_initialized()
     dl = get_data_loader(im_root, im_anns, ims_per_gpu, None,
             None, mode='val', distributed=is_dist)
@@ -204,7 +204,7 @@ def eval_model(net, ims_per_gpu, im_root, im_anns):
     logger = logging.getLogger()
 
     single_scale = MscEvalV0((1., ), False)
-    mIOU = single_scale(net, dl, 19)
+    mIOU = single_scale(net, dl, 19,iteration)
     heads.append('single_scale')
     mious.append(mIOU)
     logger.info('single mIOU is: %s\n', mIOU)
