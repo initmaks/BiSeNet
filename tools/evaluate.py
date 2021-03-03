@@ -24,7 +24,7 @@ from configs import cfg_factory
 from lib.logger import setup_logger
 from lib.cityscapes_cv2 import get_data_loader
 
-
+import wandb
 
 class MscEvalV0(object):
 
@@ -69,6 +69,15 @@ class MscEvalV0(object):
                 label[keep] * n_classes + preds[keep],
                 minlength=n_classes ** 2
                 ).view(n_classes, n_classes)
+            if i < 100:
+                wandb.log(wandb.Image(imgs[0], masks={
+                    "predictions" : {
+                        "mask_data" : preds[0]
+                    },
+                    "ground_truth" : {
+                        "mask_data" : label[0]
+                    }
+                }))
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
