@@ -197,10 +197,10 @@ def train():
         loss_pre_meter.update(loss_pre.item())
         _ = [mter.update(lss.item()) for mter, lss in zip(loss_aux_meters, loss_aux)]
 
+        lr = lr_schdr.get_lr()
+        lr = sum(lr) / len(lr)
         ## print training log message
         if (it + 1) % 100 == 0:
-            lr = lr_schdr.get_lr()
-            lr = sum(lr) / len(lr)
             print_log_msg(
                 it, cfg.max_iter, lr, time_meter, loss_meter,
                 loss_pre_meter, loss_aux_meters)
