@@ -143,13 +143,13 @@ def train():
     ## model
     net, criteria_pre, criteria_aux = set_model()
 
-    exp_name = "cityscapes_repl"
-    wandb.init(
-        project="bisenet",
-        name="cityscapes_repl"
-    )
-
-    wandb.watch(net)
+    if dist.get_rank() == 0:
+        exp_name = "cityscapes_repl"
+        wandb.init(
+            project="bisenet",
+            name="cityscapes_repl"
+        )
+        wandb.watch(net)
 
     ## optimizer
     optim = set_optimizer(net)
