@@ -207,10 +207,11 @@ def train():
         if dist.get_rank() == 0:
             wandb.log({
                 "lr":lr,
-                "time_meter":time_meter,
-                "loss_meter":loss_meter,
-                "loss_pre_meter":loss_pre_meter,
-                "loss_aux_meters":loss_aux_meters   
+                "time":time_meter.get()[0],
+                "loss":loss_meter.get()[0],
+                "loss_pre":loss_pre_meter.get()[0],
+                **{f"loss_aux_{el.name}":el.get()[0] for el in loss_aux_meters}
+                
             },step=it)
         
         if (it + 1) % 5000 == 0 and dist.get_rank() == 0:
