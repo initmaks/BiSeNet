@@ -208,36 +208,6 @@ def eval_model(net, ims_per_gpu, im_root, im_anns,iteration):
     heads.append('single_scale')
     mious.append(mIOU)
     logger.info('single mIOU is: %s\n', mIOU)
-
-    single_crop = MscEvalCrop(
-        cropsize=1024,
-        cropstride=2. / 3,
-        flip=False,
-        scales=(1., ),
-        lb_ignore=255,
-    )
-    mIOU = single_crop(net, dl, 19)
-    heads.append('single_scale_crop')
-    mious.append(mIOU)
-    logger.info('single scale crop mIOU is: %s\n', mIOU)
-
-    ms_flip = MscEvalV0((0.5, 0.75, 1, 1.25, 1.5, 1.75), True)
-    mIOU = ms_flip(net, dl, 19)
-    heads.append('ms_flip')
-    mious.append(mIOU)
-    logger.info('ms flip mIOU is: %s\n', mIOU)
-
-    ms_flip_crop = MscEvalCrop(
-        cropsize=1024,
-        cropstride=2. / 3,
-        flip=True,
-        scales=(0.5, 0.75, 1.0, 1.25, 1.5, 1.75),
-        lb_ignore=255,
-    )
-    mIOU = ms_flip_crop(net, dl, 19)
-    heads.append('ms_flip_crop')
-    mious.append(mIOU)
-    logger.info('ms crop mIOU is: %s\n', mIOU)
     return heads, mious
 
 
