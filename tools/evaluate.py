@@ -33,7 +33,7 @@ class MscEvalV0(object):
         self.flip = flip
         self.ignore_label = ignore_label
 
-    def __call__(self, net, dl, n_classes,it):
+    def __call__(self, net, dl, n_classes,it=None):
         ## evaluate
         hist = torch.zeros(n_classes, n_classes).cuda().detach()
         if dist.is_initialized() and dist.get_rank() != 0:
