@@ -33,7 +33,7 @@ class MscEvalV0(object):
         self.flip = flip
         self.ignore_label = ignore_label
 
-    def __call__(self, net, dl, n_classes,it=None):
+    def __call__(self, net, dl, n_classes,it=None,do_log=False):
         ## evaluate
         hist = torch.zeros(n_classes, n_classes).cuda().detach()
         if dist.is_initialized() and dist.get_rank() != 0:
@@ -78,7 +78,7 @@ class MscEvalV0(object):
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
                 })
-                wandb.log({"valid_img":log_img},commit=False)
+                if do_log: wandb.log({"valid_img":log_img},commit=False)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
@@ -204,7 +204,7 @@ def eval_model(net, ims_per_gpu, im_root, im_anns,iteration):
     logger = logging.getLogger()
 
     single_scale = MscEvalV0((1., ), False)
-    mIOU = single_scale(net, dl, 19,iteration)
+    mIOU = single_scale(net, dl,19,iteration,dist.get_rank() == 0)
     heads.append('single_scale')
     mious.append(mIOU)
     logger.info('single mIOU is: %s\n', mIOU)
