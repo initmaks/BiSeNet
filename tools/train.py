@@ -208,7 +208,7 @@ def train():
                 "loss":loss_avg,
                 "loss_pre":loss_pre_meter.get()[0],
                 **{f"loss_aux_{el.name}":el.get()[0] for el in loss_aux_meters}
-            },step=it)
+            },commit=False)
             if (it + 1) % 100 == 0: print(it,' - ',lr,' - ',loss_avg)
         
         if (it + 1) % 5000 == 0 and dist.get_rank() == 0:
@@ -218,9 +218,10 @@ def train():
             torch.save(state, save_pth)
             wandb.save(save_pth)
             logger.info('\nevaluating the model')
-            heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns,it)
+            heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns)
             logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
-            wandb.log({k:v for k,v in zip(heads,mious)},step=it)
+            wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
+        wandb.log({"t":it},step=it)
     return
 
 

@@ -33,7 +33,7 @@ class MscEvalV0(object):
         self.flip = flip
         self.ignore_label = ignore_label
 
-    def __call__(self, net, dl, n_classes,it=None):
+    def __call__(self, net, dl, n_classes,it):
         ## evaluate
         hist = torch.zeros(n_classes, n_classes).cuda().detach()
         if dist.is_initialized() and dist.get_rank() != 0:
@@ -78,7 +78,7 @@ class MscEvalV0(object):
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
                 })
-                wandb.log({"valid_img":log_img},step=it)
+                wandb.log({"valid_img":log_img},commit=False)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
