@@ -217,11 +217,12 @@ def train():
                 state = net.module.state_dict()
                 torch.save(state, save_pth)
                 wandb.save(save_pth)
-        logger.info('\nevaluating the model')
-        heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns,it)
-        logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
-        if ((it + 1) % 5000 == 0) and (dist.get_rank() == 0):
-            wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
+        if ((it + 1) % 5000 == 0):
+            logger.info('\nevaluating the model')
+            heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns,it)
+            logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
+            if (dist.get_rank() == 0): wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
+        if (dist.get_rank() == 0):
             wandb.log({"t":it},step=it)
     return
 
