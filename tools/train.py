@@ -218,7 +218,7 @@ def train():
                 torch.save(state, save_pth)
                 wandb.save(save_pth)
                 logger.info('\nevaluating the model')
-                heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns)
+                heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns,it)
                 logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
                 wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
             wandb.log({"t":it},step=it)
