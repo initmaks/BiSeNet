@@ -40,6 +40,7 @@ class MscEvalV0(object):
             diter = enumerate(dl)
         else:
             diter = enumerate(tqdm(dl))
+        log_imgs = []
         for i, (imgs, label) in diter:
             N, _, H, W = label.shape
             label = label.squeeze(1).cuda()
@@ -69,7 +70,7 @@ class MscEvalV0(object):
                 label[keep] * n_classes + preds[keep],
                 minlength=n_classes ** 2
                 ).view(n_classes, n_classes)
-            if i < 25 and it:
+            if i < 25 and it and do_log:
                 log_img = wandb.Image(imgs[0].permute([1,2,0]).cpu().detach().numpy(), masks={
                     "predictions" : {
                         "mask_data" : preds[0].cpu().detach().numpy()
@@ -78,7 +79,8 @@ class MscEvalV0(object):
                         "mask_data" : label[0].cpu().detach().numpy()
                     }
                 })
-                if do_log: wandb.log({"valid_img":log_img},commit=False)
+                log_imgs.append(log_img)
+        if log_imgs: wandb.log({"valid_imgs":log_imgs},commit=False)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
