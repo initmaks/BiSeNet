@@ -154,9 +154,9 @@ class CityScapesMini(Dataset):
             label = cv2.imread(lbpth, 0)
             label = self.cs_lb_map[label]
         else: # gta
-            img = cv2.resize(img,(2048,1024),interpolation=cv2.INTER_NEAREST)
+            img = cv2.resize(img,(1024,512),interpolation=cv2.INTER_NEAREST)
             label = cv2.imread(lbpth)
-            label = cv2.resize(label,(2048,1024),interpolation=cv2.INTER_NEAREST)
+            label = cv2.resize(label,(1024,512),interpolation=cv2.INTER_NEAREST)
             ixs,iys,_ = np.where(label==[32,11,119])
             label[ixs,iys]=[32,11,119] # make each use label unique
             label = label.sum(axis=2)
