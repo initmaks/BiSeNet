@@ -9,6 +9,7 @@ import random
 import logging
 import time
 import argparse
+import itertools
 import numpy as np
 from tabulate import tabulate
 
@@ -39,7 +40,7 @@ except ImportError:
 
 weather_options = [
     "ClearNoon",
-    # "MidRainyNoon",
+    "MidRainyNoon",
     # "HardRainSunset"
 ]
 
@@ -57,15 +58,10 @@ img_sizes = [256,512,1024]
 
 sensor_heights = [0.5,1.0,1.5]
 
-patterns = dict()
-for pattern_loc_i,pattern_options in enumerate([towns,img_sizes,weather_options,sensor_heights]):
-    for option in pattern_options:
-        fillers = ["*"]*4
-        fillers[pattern_loc_i] = option
-        pattern = "datasets/carla/sidewalk_{}_{}_{}_{}_*".format(*fillers)
-        patterns[str(option)] = pattern
-
-# settings_string = f"carla/sidewalk_{town}_{img_size}_{weather}_{sensor_height}_*"
+patterns = []
+for town,img_size,weather,sensor_h in itertools.product(towns,img_sizes,weather_options,sensor_heights):
+        pattern = f"{town}_{img_size}_{weather}_{sensor_h}"
+        patterns[pattern] = "datasets/carla/sidewalk_{pattern}_*"
 
 ## fix all random seeds
 torch.manual_seed(123)
@@ -75,8 +71,6 @@ random.seed(123)
 torch.backends.cudnn.deterministic = True
 #  torch.backends.cudnn.benchmark = True
 #  torch.multiprocessing.set_sharing_strategy('file_system')
-
-
 
 
 def parse_args():
