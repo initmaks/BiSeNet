@@ -52,10 +52,11 @@ labels_info = [
 ]
 
 
-class CarlaScapes:
+class CarlaScapes(Dataset):
     '''
     '''
     def __init__(self, pattern, trans_func=None):
+        super(Dataset, self).__init__()
         self.trans_func = trans_func
 
         self.img_paths = glob.glob(pattern + "_rgb.png")
