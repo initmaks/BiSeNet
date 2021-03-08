@@ -201,7 +201,7 @@ def eval_model(net, set_name, dl, iteration):
     logger = logging.getLogger()
 
     single_scale = MscEvalV0((1., ), False)
-    mIOU = single_scale(net, dl,19,iteration,set_name,dist.get_rank() == 0)
+    mIOU = single_scale(net, dl,8,iteration,set_name,dist.get_rank() == 0)
     heads.append(set_name + '_single_scale')
     mious.append(mIOU)
     logger.info(set_name + ' : single mIOU is: %s\n', mIOU)
