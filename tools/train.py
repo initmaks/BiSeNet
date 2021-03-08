@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 
 from lib.models import model_factory
 from configs import cfg_factory
-from lib.cityscapes_cv2 import get_data_loader as get_train_dataloader
+from lib.cityscapes_mini_cv2 import get_data_loader as get_train_dataloader
 from lib.carla_sidewalk_cv2 import get_data_loader as get_carla_data_loader
 
 from lib.ohem_ce_loss import OhemCELoss
