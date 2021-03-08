@@ -102,7 +102,7 @@ def get_data_loader(pattern, ims_per_gpu, scales, cropsize, max_iter=None, mode=
         shuffle = False
         drop_last = False
 
-    ds = CarlaScapes(pattern, trans_func=trans_func, mode=mode)
+    ds = CarlaScapes(pattern, trans_func=trans_func)
 
     if distributed:
         assert dist.is_available(), "dist should be initialzed"
