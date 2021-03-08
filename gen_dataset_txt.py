@@ -39,7 +39,7 @@ def main():
                             sidewalk_count += 1
                         else:
                             road_count += 1
-    with open('datasets/carla/gta5.txt','w+') as f:
+    with open('datasets/gta/gta5.txt','w+') as f:
         for output_instance in output_info:
             f.write(output_instance + "\n")
     print(road_count, sidewalk_count)
