@@ -185,7 +185,7 @@ def get_data_loader(datapth, annpath, ims_per_gpu, scales, cropsize, max_iter=No
         shuffle = False
         drop_last = False
 
-    ds = CityScapesMini(datapth, annpath, trans_func=trans_func, mode=mode)
+    ds = CityScapesMini(datapth, annpath, trans_func=trans_func)
 
     if distributed:
         assert dist.is_available(), "dist should be initialzed"
