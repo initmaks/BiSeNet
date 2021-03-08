@@ -138,7 +138,7 @@ class CityScapesMini(Dataset):
             if len(pair_info)==2:
                 set_type = "cs_road"
             else:
-                set_type = "gta"
+                set_type = "gta_"
                 set_type += pair_info[2]
             imgpth, lbpth = pair_info[0],pair_info[1]
             self.img_paths.append(osp.join(dataroot, imgpth))
