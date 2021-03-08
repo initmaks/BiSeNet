@@ -19,8 +19,9 @@ from torch.utils.data import DataLoader
 
 from lib.models import model_factory
 from configs import cfg_factory
-from lib.cityscapes_cv2 import get_data_loader
-from tools.evaluate import eval_model
+from lib.cityscapes_cv2 import get_data_loader as get_train_dataloader
+from lib.carla_sidewalk_cv2 import get_data_loader as get_carla_data_loader
+
 from lib.ohem_ce_loss import OhemCELoss
 from lib.lr_scheduler import WarmupPolyLrScheduler
 from lib.meters import TimeMeter, AvgMeter
@@ -35,6 +36,46 @@ try:
 except ImportError:
     has_apex = False
 
+weather_options = [
+    "ClearNoon",
+    # "CloudyNoon",
+    # "WetNoon",
+    # "WetCloudyNoon",
+    # "SoftRainNoon",
+    "MidRainyNoon",
+    # "HardRainNoon",
+    # "ClearSunset",
+    # "CloudySunset",
+    # "WetSunset",
+    # "WetCloudySunset",
+    # "SoftRainSunset",
+    # "MidRainSunset",
+    "HardRainSunset"
+]
+
+towns = [
+    'Town01',
+    'Town02',
+    'Town03',
+    'Town04',
+    'Town05',
+    'Town07',
+    'Town10HD',
+]
+
+img_sizes = [256,512,1024]
+
+sensor_heights = [0.5,1.0,1.5]
+
+patterns = dict()
+for pattern_loc_i,pattern_options in enumerate([towns,img_sizes,weather_options,sensor_heights]):
+    for option in pattern_options:
+        fillers = ["*"]*4
+        fillers[pattern_loc_i] = option
+        pattern = "carla/sidewalk_{}_{}_{}_{}_*".format(*fillers)
+        patterns[option] = pattern
+
+# settings_string = f"carla/sidewalk_{town}_{img_size}_{weather}_{sensor_height}_*"
 
 ## fix all random seeds
 torch.manual_seed(123)
@@ -135,10 +176,18 @@ def train():
     is_dist = dist.is_initialized()
 
     ## dataset
-    dl = get_data_loader(
+    dl = get_train_dataloader(
             cfg.im_root, cfg.train_im_anns,
             cfg.ims_per_gpu, cfg.scales, cfg.cropsize,
             cfg.max_iter, mode='train', distributed=is_dist)
+
+    valid_dls = dict()
+    for set_name, set_pattern in patterns:
+        carla_dl = get_carla_data_loader(set_pattern, ims_per_gpu=2, mode='valid', distributed=is_dist)
+        valid_dls[set_name] = carla_dl
+    # real_dl = get_real_data_loader()
+    # valid_dls.append(real_dl)
+
 
     ## model
     net, criteria_pre, criteria_aux = set_model()
