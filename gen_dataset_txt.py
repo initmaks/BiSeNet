@@ -1,6 +1,7 @@
 import os
 import glob
 
+split = 'val' # 'train'
 dataset_path = 'datasets/gta/'
 
 def main():
@@ -9,7 +10,7 @@ def main():
 
     road_count, sidewalk_count = 0,0
 
-    for split_file in glob.glob('viper_*.txt'):
+    for split_file in glob.glob(f"viper_{split}_*.txt"):
         _, split_set, split_type = split_file[:-4].split('_')
         print(split_set, split_type)
         with open(split_file,'r') as f:
@@ -39,7 +40,7 @@ def main():
                             sidewalk_count += 1
                         else:
                             road_count += 1
-    with open('datasets/gta/gta5.txt','w+') as f:
+    with open(f"datasets/gta/{split}.txt','w+") as f:
         for output_instance in output_info:
             f.write(output_instance + "\n")
     print(road_count, sidewalk_count)
