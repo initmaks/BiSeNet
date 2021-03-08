@@ -154,7 +154,8 @@ class CityScapesMini(Dataset):
         if itype == "cs_road":
             label = self.cs_lb_map[label]
         else: # gta
-            label[label==[119,11,32]]=[119,11,33] # make each use label unique
+            ixs,iys,_ = np.where(label==[119,11,32])
+            label[ixs,iys]=[119,11,33] # make each use label unique
             label = label.sum(axis=2)
             if itype == "gta_road":
                 label = self.gta_rd_lb_map[label]
