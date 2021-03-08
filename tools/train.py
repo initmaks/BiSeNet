@@ -104,7 +104,7 @@ cfg = cfg_factory[args.model]
 
 
 def set_model():
-    net = model_factory[cfg.model_type](19)
+    net = model_factory[cfg.model_type](8)
     if not args.finetune_from is None:
         net.load_state_dict(torch.load(args.finetune_from, map_location='cpu'))
     if cfg.use_sync_bn: net = set_syncbn(net)
