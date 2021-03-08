@@ -26,29 +26,29 @@ from lib.base_dataset import BaseDataset, TransformationTrain, TransformationVal
 # "traffic_light" : 7
 
 labels_info = [
-    {"name":"Unlabeled",    "id":"0",       "color":[0, 0, 0],          "trainId":255},
-    {"name":"Building",     "id":"1",       "color":[70, 70, 70],       "trainId":2},
-    {"name":"Fence",        "id":"2",       "color":[100, 40, 40],      "trainId":2}, 
-    {"name":"Other",        "id":"3",       "color":[55, 90, 80],       "trainId":3},
-    {"name":"Pedestrian",   "id":"4",       "color":[220, 20, 60],      "trainId":5},
-    {"name":"Pole",         "id":"5",       "color":[153, 153, 153],    "trainId":3},
-    {"name":"RoadLine",     "id":"6",       "color":[157, 234, 50],     "trainId":3},
-    {"name":"Road",         "id":"7",       "color":[128, 64, 128],     "trainId":1},   # SWAPPED! 0-1
-    {"name":"SideWalk",     "id":"8",       "color":[244, 35, 232],     "trainId":0},   # SWAPPED! 1-0
-    {"name":"Vegetation",   "id":"9",       "color":[107, 142, 35],     "trainId":3},
-    {"name":"Vehicles",     "id":"10",      "color":[0, 0, 142],        "trainId":6},
-    {"name":"Wall",         "id":"11",      "color":[102, 102, 156],    "trainId":2},
-    {"name":"TrafficSign",  "id":"12",      "color":[220, 220, 0],      "trainId":3},
-    {"name":"Sky",          "id":"13",      "color":[70, 130, 180],     "trainId":4},
-    {"name":"Ground",       "id":"14",      "color":[81, 0, 81],        "trainId":1}, # not sampling sidewalk points on the "ground"
-    {"name":"Bridge",       "id":"15",      "color":[150, 100, 100],    "trainId":2},
-    {"name":"RailTrack",    "id":"16",      "color":[230, 150, 140],    "trainId":3},
-    {"name":"GuardRail",    "id":"17",      "color":[180, 165, 180],    "trainId":2},
-    {"name":"TrafficLight", "id":"18",      "color":[250, 170, 30],     "trainId":7},
-    {"name":"Static",       "id":"19",      "color":[110, 190, 160],    "trainId":3},
-    {"name":"Dynamic",      "id":"20",      "color":[170, 120, 50],     "trainId":3},
-    {"name":"Water",        "id":"21",      "color":[45, 60, 150],      "trainId":1}, # unclear - just marking as road_after / non-walkable
-    {"name":"Terrain",      "id":"22",      "color":[145, 170, 100],    "trainId":1}, # TERRAIN IS ALWAYS ROAD_AFTER
+    {"name":"Unlabeled",    "id":0,       "color":[0, 0, 0],          "trainId":255},
+    {"name":"Building",     "id":1,       "color":[70, 70, 70],       "trainId":2},
+    {"name":"Fence",        "id":2,       "color":[100, 40, 40],      "trainId":2}, 
+    {"name":"Other",        "id":3,       "color":[55, 90, 80],       "trainId":3},
+    {"name":"Pedestrian",   "id":4,       "color":[220, 20, 60],      "trainId":5},
+    {"name":"Pole",         "id":5,       "color":[153, 153, 153],    "trainId":3},
+    {"name":"RoadLine",     "id":6,       "color":[157, 234, 50],     "trainId":3},
+    {"name":"Road",         "id":7,       "color":[128, 64, 128],     "trainId":1},   # SWAPPED! 0-1
+    {"name":"SideWalk",     "id":8,       "color":[244, 35, 232],     "trainId":0},   # SWAPPED! 1-0
+    {"name":"Vegetation",   "id":9,       "color":[107, 142, 35],     "trainId":3},
+    {"name":"Vehicles",     "id":10,      "color":[0, 0, 142],        "trainId":6},
+    {"name":"Wall",         "id":11,      "color":[102, 102, 156],    "trainId":2},
+    {"name":"TrafficSign",  "id":12,      "color":[220, 220, 0],      "trainId":3},
+    {"name":"Sky",          "id":13,      "color":[70, 130, 180],     "trainId":4},
+    {"name":"Ground",       "id":14,      "color":[81, 0, 81],        "trainId":1}, # not sampling sidewalk points on the "ground"
+    {"name":"Bridge",       "id":15,      "color":[150, 100, 100],    "trainId":2},
+    {"name":"RailTrack",    "id":16,      "color":[230, 150, 140],    "trainId":3},
+    {"name":"GuardRail",    "id":17,      "color":[180, 165, 180],    "trainId":2},
+    {"name":"TrafficLight", "id":18,      "color":[250, 170, 30],     "trainId":7},
+    {"name":"Static",       "id":19,      "color":[110, 190, 160],    "trainId":3},
+    {"name":"Dynamic",      "id":20,      "color":[170, 120, 50],     "trainId":3},
+    {"name":"Water",        "id":21,      "color":[45, 60, 150],      "trainId":1}, # unclear - just marking as road_after / non-walkable
+    {"name":"Terrain",      "id":22,      "color":[145, 170, 100],    "trainId":1}, # TERRAIN IS ALWAYS ROAD_AFTER
 ]
 
 
