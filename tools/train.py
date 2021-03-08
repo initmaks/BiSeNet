@@ -187,7 +187,9 @@ def train():
         carla_dl = get_carla_data_loader(
             set_pattern,
             ims_per_gpu=2,
-            mode='valid',
+            scales=None,
+            cropsize=None,
+            mode='val',
             distributed=is_dist
         )
         valid_dls[set_name] = carla_dl
