@@ -61,7 +61,7 @@ sensor_heights = [0.5,1.0,1.5]
 patterns = []
 for town,img_size,weather,sensor_h in itertools.product(towns,img_sizes,weather_options,sensor_heights):
         pattern = f"{town}_{img_size}_{weather}_{sensor_h}"
-        patterns[pattern] = f"datasets/carla/sidewalk_{pattern}_*"
+        patterns[pattern] = "datasets/carla/sidewalk_"+pattern+"_*"
 
 ## fix all random seeds
 torch.manual_seed(123)
