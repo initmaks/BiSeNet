@@ -1,8 +1,4 @@
-
-from .bisenetv1 import cfg as bisenetv1_cfg
-from .bisenetv2 import cfg as bisenetv2_cfg
-
-
+from .bisenetv2_custom import cfg as bisenetv2_custom_cfg
 
 class cfg_dict(object):
 
@@ -11,6 +7,5 @@ class cfg_dict(object):
 
 
 cfg_factory = dict(
-    bisenetv1=cfg_dict(bisenetv1_cfg),
-    bisenetv2=cfg_dict(bisenetv2_cfg),
+    bisenetv2_custom=cfg_dict(bisenetv2_custom_cfg),
 )
