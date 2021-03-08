@@ -30,11 +30,11 @@ def main():
                 else:
                     ranges = range(start,stop+1,10)
                 for n in ranges:
-                    color_fname = f"{dataset_path}{track_param_str}{n:05d}.jpg"
+                    color_fname = f"gta/{track_param_str}{n:05d}.jpg"
                     label_fname = color_fname.replace("img","cls")
                     label_fname = label_fname.replace("jpg","png")
                     if os.path.isfile(color_fname) and os.path.isfile(label_fname):
-                        pair_info = ','.join([color_fname,label_fname])
+                        pair_info = ','.join([color_fname,label_fname,split_type])
                         output_info.append(pair_info)
                         if split_type == 'sidewalk':
                             sidewalk_count += 1
