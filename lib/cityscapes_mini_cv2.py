@@ -150,12 +150,13 @@ class CityScapesMini(Dataset):
     def __getitem__(self, idx):
         impth, lbpth, itype = self.img_paths[idx], self.lb_paths[idx], self.img_types[idx]
         img = cv2.imread(impth)[:, :, ::-1]
-        label = cv2.imread(lbpth, 0)
         if itype == "cs_road":
+            label = cv2.imread(lbpth, 0)
             label = self.cs_lb_map[label]
         else: # gta
-            ixs,iys,_ = np.where(label==[119,11,32])
-            label[ixs,iys]=[119,11,33] # make each use label unique
+            label = cv2.imread(lbpth)
+            ixs,iys,_ = np.where(label==[32,11,119])
+            label[ixs,iys]=[32,11,119] # make each use label unique
             label = label.sum(axis=2)
             if itype == "gta_road":
                 label = self.gta_rd_lb_map[label]
