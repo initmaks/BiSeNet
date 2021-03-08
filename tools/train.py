@@ -191,10 +191,10 @@ def train():
     net, criteria_pre, criteria_aux = set_model()
 
     if dist.get_rank() == 0:
-        exp_name = "cityscapes_repl"
+        exp_name = "cityscapes+gta"
         wandb.init(
             project="bisenet",
-            name="cityscapes_repl"
+            name=exp_name
         )
         wandb.watch(net)
 
