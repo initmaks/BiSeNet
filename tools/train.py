@@ -183,7 +183,7 @@ def train():
         cfg.max_iter, mode='train', distributed=is_dist)
 
     valid_dls = dict()
-    for set_name, set_pattern in patterns:
+    for set_name, set_pattern in patterns.items():
         carla_dl = get_carla_data_loader(
             set_pattern,
             ims_per_gpu=2,
