@@ -150,7 +150,7 @@ class CityScapesMini(Dataset):
     def __getitem__(self, idx):
         impth, lbpth, itype = self.img_paths[idx], self.lb_paths[idx], self.img_types[idx]
         img = cv2.imread(impth)[:, :, ::-1]
-        label = np.load(lbpth)
+        label = cv2.imread(lbpth, 0)
         if itype == "cs_road":
             label = self.cs_lb_map[label]
         else: # gta

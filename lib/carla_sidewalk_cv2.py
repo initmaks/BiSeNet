@@ -77,7 +77,7 @@ class CarlaScapes(Dataset):
     def __getitem__(self, idx):
         impth, lbpth = self.img_paths[idx], self.lb_paths[idx]
         img = cv2.imread(impth)[:, :, ::-1]
-        label = np.load(lbpth)
+        label = np.load(lbpth,allow_pickle=True)
         if not self.lb_map is None:
             label = self.lb_map[label]
         im_lb = dict(im=img, lb=label)
