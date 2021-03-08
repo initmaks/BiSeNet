@@ -265,8 +265,8 @@ def train():
                 torch.save(state, save_pth)
                 wandb.save(save_pth)
         if ((it + 1) % 2000 == 0):
-            logger.info('\nevaluating the model')
             for val_set, val_dl in valid_dls.items():
+                logger.info('\nevaluating the model on: '+val_set)
                 heads, mious = eval_model(net,val_set,val_dl,it)
                 logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
             if (dist.get_rank() == 0): wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
