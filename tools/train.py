@@ -62,7 +62,7 @@ for pattern_loc_i,pattern_options in enumerate([towns,img_sizes,weather_options,
     for option in pattern_options:
         fillers = ["*"]*4
         fillers[pattern_loc_i] = option
-        pattern = "carla/sidewalk_{}_{}_{}_{}_*".format(*fillers)
+        pattern = "datasets/carla/sidewalk_{}_{}_{}_{}_*".format(*fillers)
         patterns[str(option)] = pattern
 
 # settings_string = f"carla/sidewalk_{town}_{img_size}_{weather}_{sensor_height}_*"
