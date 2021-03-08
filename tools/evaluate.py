@@ -33,7 +33,7 @@ class MscEvalV0(object):
         self.flip = flip
         self.ignore_label = ignore_label
 
-    def __call__(self, net, dl, n_classes,it=None,do_log=False):
+    def __call__(self, net, dl, n_classes,it=None,set_name="val",do_log=False):
         ## evaluate
         hist = torch.zeros(n_classes, n_classes).cuda().detach()
         if dist.is_initialized() and dist.get_rank() != 0:
@@ -80,7 +80,7 @@ class MscEvalV0(object):
                     }
                 })
                 log_imgs.append(log_img)
-        if log_imgs: wandb.log({"valid_imgs":log_imgs},commit=False)
+        if log_imgs: wandb.log({set_name:log_imgs},commit=False)
         if dist.is_initialized():
             dist.all_reduce(hist, dist.ReduceOp.SUM)
         ious = hist.diag() / (hist.sum(dim=0) + hist.sum(dim=1) - hist.diag())
@@ -193,49 +193,19 @@ class MscEvalCrop(object):
         miou = ious.mean()
         return miou.item()
 
-
-
 @torch.no_grad()
-def eval_model(net, ims_per_gpu, im_root, im_anns,iteration):
-    is_dist = dist.is_initialized()
-    dl = get_data_loader(im_root, im_anns, ims_per_gpu, None,
-            None, mode='val', distributed=is_dist)
+def eval_model(net, set_name, dl, iteration):
     net.eval()
 
     heads, mious = [], []
     logger = logging.getLogger()
 
     single_scale = MscEvalV0((1., ), False)
-    mIOU = single_scale(net, dl,19,iteration,dist.get_rank() == 0)
-    heads.append('single_scale')
+    mIOU = single_scale(net, dl,19,iteration,set_name,dist.get_rank() == 0)
+    heads.append(set_name + '_single_scale')
     mious.append(mIOU)
-    logger.info('single mIOU is: %s\n', mIOU)
+    logger.info(set_name + ' : single mIOU is: %s\n', mIOU)
     return heads, mious
-
-
-def evaluate(cfg, weight_pth):
-    logger = logging.getLogger()
-
-    ## model
-    logger.info('setup and restore model')
-    net = model_factory[cfg.model_type](19)
-    #  net = BiSeNetV2(19)
-    net.load_state_dict(torch.load(weight_pth))
-    net.cuda()
-
-    is_dist = dist.is_initialized()
-    if is_dist:
-        local_rank = dist.get_rank()
-        net = nn.parallel.DistributedDataParallel(
-            net,
-            device_ids=[local_rank, ],
-            output_device=local_rank
-        )
-
-    ## evaluator
-    heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns)
-    logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
-
 
 def parse_args():
     parse = argparse.ArgumentParser()
@@ -246,22 +216,3 @@ def parse_args():
     parse.add_argument('--port', dest='port', type=int, default=44553,)
     parse.add_argument('--model', dest='model', type=str, default='bisenetv2',)
     return parse.parse_args()
-
-
-def main():
-    args = parse_args()
-    cfg = cfg_factory[args.model]
-    if not args.local_rank == -1:
-        torch.cuda.set_device(args.local_rank)
-        dist.init_process_group(backend='nccl',
-        init_method='tcp://127.0.0.1:{}'.format(args.port),
-        world_size=torch.cuda.device_count(),
-        rank=args.local_rank
-    )
-    if not osp.exists(cfg.respth): os.makedirs(cfg.respth)
-    setup_logger('{}-eval'.format(cfg.model_type), cfg.respth)
-    evaluate(cfg, args.weight_pth)
-
-
-if __name__ == "__main__":
-    main()

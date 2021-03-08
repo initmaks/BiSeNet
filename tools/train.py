@@ -26,6 +26,7 @@ from lib.ohem_ce_loss import OhemCELoss
 from lib.lr_scheduler import WarmupPolyLrScheduler
 from lib.meters import TimeMeter, AvgMeter
 from lib.logger import setup_logger, print_log_msg
+from tools.evaluate import eval_model
 
 import wandb
 
@@ -177,17 +178,23 @@ def train():
 
     ## dataset
     dl = get_train_dataloader(
-            cfg.im_root, cfg.train_im_anns,
-            cfg.ims_per_gpu, cfg.scales, cfg.cropsize,
-            cfg.max_iter, mode='train', distributed=is_dist)
+        cfg.im_root, cfg.train_im_anns,
+        cfg.ims_per_gpu, cfg.scales, cfg.cropsize,
+        cfg.max_iter, mode='train', distributed=is_dist)
 
     valid_dls = dict()
     for set_name, set_pattern in patterns:
-        carla_dl = get_carla_data_loader(set_pattern, ims_per_gpu=2, mode='valid', distributed=is_dist)
+        carla_dl = get_carla_data_loader(
+            set_pattern,
+            ims_per_gpu=2,
+            mode='valid',
+            distributed=is_dist
+        )
         valid_dls[set_name] = carla_dl
-    # real_dl = get_real_data_loader()
-    # valid_dls.append(real_dl)
-
+    cityscapes_valid_dl = get_train_dataloader(cfg.im_root, './datasets/citysc_val.txt', 2, None, None, mode='val', distributed=is_dist)
+    valid_dls['cityscapes']=cityscapes_valid_dl
+    gta_valid_dl = get_train_dataloader(cfg.im_root, './datasets/gta_val.txt', 2, None, None, mode='val', distributed=is_dist)
+    valid_dls['gta']=gta_valid_dl
 
     ## model
     net, criteria_pre, criteria_aux = set_model()
@@ -268,8 +275,9 @@ def train():
                 wandb.save(save_pth)
         if ((it + 1) % 2000 == 0):
             logger.info('\nevaluating the model')
-            heads, mious = eval_model(net, 2, cfg.im_root, cfg.val_im_anns,it)
-            logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
+            for val_set, val_dl in valid_dls.items():
+                heads, mious = eval_model(net,val_set,val_dl,it)
+                logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
             if (dist.get_rank() == 0): wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
         if (dist.get_rank() == 0):
             wandb.log({"t":it},step=it)

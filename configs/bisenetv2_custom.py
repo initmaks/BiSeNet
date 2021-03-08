@@ -9,7 +9,6 @@ cfg = dict(
     max_iter = 150000,
     im_root='./datasets/',
     train_im_anns='./datasets/train.txt',
-    val_im_anns='./datasets/val.txt',
     scales=[0.25, 2.],
     cropsize=[512, 1024],
     ims_per_gpu=8,

@@ -4,6 +4,7 @@
 import os
 import os.path as osp
 import json
+import copy
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -24,7 +25,7 @@ from lib.base_dataset import BaseDataset, TransformationTrain, TransformationVal
 # "vehicles"      : 6
 # "traffic_light" : 7
 
-labels_info = [
+cs_labels_info = [
     {"name": "unlabeled",               "id": 0, "color": [0, 0, 0],        "trainId": 255},
     {"name": "ego vehicle",             "id": 1, "color": [0, 0, 0],        "trainId": 255},
     {"name": "rectification border",    "id": 2, "color": [0, 0, 0],        "trainId": 255},
@@ -62,23 +63,115 @@ labels_info = [
     {"name": "license plate",           "id": -1, "color": [0, 0, 142],     "trainId": 255}
 ]
 
-class CityScapesMini(BaseDataset):
+gta_labels_info = [
+    {"name":"unlabeled",        "id":0,     "trainId":3}, # id = sum(rgb)
+    {"name":"ambiguous",        "id":185,   "trainId":3},
+    {"name":"sky",              "id":380,   "trainId":4},
+    {"name":"railtrack",        "id":520,   "trainId":3},
+    {"name":"terrain",          "id":555,   "trainId":1},
+    {"name":"tree",             "id":304,   "trainId":3},
+    {"name":"vegetation",       "id":212,   "trainId":3},
+    {"name":"building",         "id":210,   "trainId":2},
+    {"name":"infrastructure",   "id":459,   "trainId":3},
+    {"name":"fence",            "id":496,   "trainId":2},
+    {"name":"billboard",        "id":190,   "trainId":3},
+    {"name":"trafficlight",     "id":450,   "trainId":7},
+    {"name":"trafficsign",      "id":440,   "trainId":3},
+    {"name":"mobilebarrier",    "id":460,   "trainId":3},
+    {"name":"firehydrant",      "id":479,   "trainId":3},
+    {"name":"chair",            "id":474,   "trainId":3},
+    {"name":"trash",            "id":102,   "trainId":3},
+    {"name":"trashcan",         "id":163,   "trainId":3}, # sum(RGB)+1
+    {"name":"person",           "id":300,   "trainId":5},
+    {"name":"animal",           "id":255,   "trainId":3},
+    {"name":"bicycle",          "id":162,   "trainId":6},
+    {"name":"motorcycle",       "id":230,   "trainId":6},
+    {"name":"car",              "id":142,   "trainId":6},
+    {"name":"van",              "id":180,   "trainId":6},
+    {"name":"bus",              "id":160,   "trainId":6},
+    {"name":"truck",            "id":70,    "trainId":6},
+    {"name":"trailer",          "id":90,    "trainId":6},
+    {"name":"train",            "id":180,   "trainId":6},
+    {"name":"plane",            "id":200,   "trainId":6},
+    {"name":"boat",             "id":140,   "trainId":6},
+]
+
+gta_swlk_labels_info = copy.copy(gta_labels_info)
+gta_swlk_labels_info.append({"name":"sidewalk", "id":511,   "trainId":0})
+gta_swlk_labels_info.append({"name":"road",     "id":320,   "trainId":1})
+
+gta_road_labels_info = copy.copy(gta_labels_info)
+gta_road_labels_info.append({"name":"road",     "id":320,   "trainId":0})
+gta_road_labels_info.append({"name":"sidewalk", "id":511,   "trainId":1})
+
+class CityScapesMini(Dataset):
     '''
     '''
-    def __init__(self, dataroot, annpath, trans_func=None, mode='train'):
-        super(CityScapesMini, self).__init__(
-                dataroot, annpath, trans_func, mode)
+    def __init__(self, dataroot, annpath, trans_func=None):
+        super(CityScapesMini, self).__init__()
+        self.trans_func = trans_func
         self.n_cats = 8
         self.lb_ignore = 255
-        self.lb_map = np.arange(256).astype(np.uint8)
-        for el in labels_info:
-            self.lb_map[el['id']] = el['trainId']
+
+        self.cs_lb_map = np.arange(256).astype(np.uint8)
+        for el in cs_labels_info:
+            self.cs_lb_map[el['id']] = el['trainId']
+        
+        self.gta_sw_lb_map = np.arange(256*3).astype(np.uint8)
+        for el in gta_swlk_labels_info:
+            self.gta_sw_lb_map[el['id']] = el['trainId']
+        
+        self.gta_rd_lb_map = np.arange(256*3).astype(np.uint8)
+        for el in gta_road_labels_info:
+            self.gta_rd_lb_map[el['id']] = el['trainId']
 
         self.to_tensor = T.ToTensor(
             mean=(0.3257, 0.3690, 0.3223), # city, rgb
             std=(0.2112, 0.2148, 0.2115),
         )
 
+        with open(annpath, 'r') as fr:
+            pairs = fr.read().splitlines()
+        self.img_paths, self.lb_paths, self.img_types = [], [], []
+        for pair_info in pairs:
+            pair_info = pair_info.split(',')
+            if len(pair_info)==2:
+                set_type = "cs_road"
+            else:
+                set_type = "gta"
+                set_type += pair_info[2]
+            imgpth, lbpth = pair_info[0],pair_info[1]
+            self.img_paths.append(osp.join(dataroot, imgpth))
+            self.lb_paths.append(osp.join(dataroot, lbpth))
+            self.img_types.append(set_type)
+
+        assert len(self.img_paths) == len(self.lb_paths)
+
+    def __getitem__(self, idx):
+        impth, lbpth, itype = self.img_paths[idx], self.lb_paths[idx], self.img_types[idx]
+        img = cv2.imread(impth)[:, :, ::-1]
+        label = np.load(lbpth)
+        if itype == "cs_road":
+            label = self.cs_lb_map[label]
+        else: # gta
+            label[label==[119,11,32]]=[119,11,33] # make each use label unique
+            label = label.sum(axis=2)
+            if itype == "gta_road":
+                label = self.gta_rd_lb_map[label]
+            elif itype == "gta_sidewalk":
+                label = self.gta_sw_lb_map[label]
+            else:
+                raise NotImplementedError
+
+        im_lb = dict(im=img, lb=label)
+        if not self.trans_func is None:
+            im_lb = self.trans_func(im_lb)
+        im_lb = self.to_tensor(im_lb)
+        img, label = im_lb['im'], im_lb['lb']
+        return img.detach(), label.unsqueeze(0).detach()
+
+    def __len__(self):
+        return len(self.img_paths)
 
 def get_data_loader(datapth, annpath, ims_per_gpu, scales, cropsize, max_iter=None, mode='train', distributed=True):
     if mode == 'train':
