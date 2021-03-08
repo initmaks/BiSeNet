@@ -39,29 +39,18 @@ except ImportError:
 
 weather_options = [
     "ClearNoon",
-    # "CloudyNoon",
-    # "WetNoon",
-    # "WetCloudyNoon",
-    # "SoftRainNoon",
-    "MidRainyNoon",
-    # "HardRainNoon",
-    # "ClearSunset",
-    # "CloudySunset",
-    # "WetSunset",
-    # "WetCloudySunset",
-    # "SoftRainSunset",
-    # "MidRainSunset",
-    "HardRainSunset"
+    # "MidRainyNoon",
+    # "HardRainSunset"
 ]
 
 towns = [
     'Town01',
     'Town02',
-    'Town03',
+    # 'Town03',
     'Town04',
     'Town05',
     'Town07',
-    'Town10HD',
+    # 'Town10HD',
 ]
 
 img_sizes = [256,512,1024]
@@ -74,7 +63,7 @@ for pattern_loc_i,pattern_options in enumerate([towns,img_sizes,weather_options,
         fillers = ["*"]*4
         fillers[pattern_loc_i] = option
         pattern = "carla/sidewalk_{}_{}_{}_{}_*".format(*fillers)
-        patterns[option] = pattern
+        patterns[str(option)] = pattern
 
 # settings_string = f"carla/sidewalk_{town}_{img_size}_{weather}_{sensor_height}_*"
 
