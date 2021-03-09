@@ -60,9 +60,7 @@ class CarlaScapes(Dataset):
         self.trans_func = trans_func
 
         self.img_paths = glob.glob(pattern + "_rgb.png")
-        self.lb_paths = glob.glob(pattern + "_label.np.npy")
-        assert len(self.img_paths) == len(self.lb_paths)
-
+        self.lb_paths = [imf.replace("_rgb.png","_label.np.npy") for imf in self.img_paths]
         self.n_cats = 8
         self.lb_ignore = 255
         self.lb_map = np.arange(256).astype(np.uint8)
