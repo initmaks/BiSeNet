@@ -70,7 +70,7 @@ class MscEvalV0(object):
                 label[keep] * n_classes + preds[keep],
                 minlength=n_classes ** 2
                 ).view(n_classes, n_classes)
-            if i < 25 and it and do_log:
+            if i < 6 and it and do_log:
                 log_img = wandb.Image(imgs[0].permute([1,2,0]).cpu().detach().numpy(), masks={
                     "predictions" : {
                         "mask_data" : preds[0].cpu().detach().numpy()
