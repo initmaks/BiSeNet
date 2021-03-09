@@ -46,11 +46,11 @@ weather_options = [
 
 towns = [
     'Town01',
-    'Town02',
-    # 'Town03',
-    'Town04',
-    'Town05',
-    'Town07',
+    # 'Town02',
+    'Town03',
+    # 'Town04',
+    # 'Town05',
+    # 'Town07',
     # 'Town10HD',
 ]
 
