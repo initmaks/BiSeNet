@@ -194,14 +194,14 @@ class MscEvalCrop(object):
         return miou.item()
 
 @torch.no_grad()
-def eval_model(net, set_name, dl, iteration):
+def eval_model(net, set_name, dl, iteration,dist):
     net.eval()
 
     heads, mious = [], []
     logger = logging.getLogger()
 
     single_scale = MscEvalV0((1., ), False)
-    mIOU = single_scale(net, dl,8,iteration,set_name,dist.get_rank() == 0)
+    mIOU = single_scale(net,dl,8,iteration,set_name,do_log=dist.get_rank()==0)
     heads.append(set_name + '_single_scale')
     mious.append(mIOU)
     logger.info(set_name + ' : single mIOU is: %s\n', mIOU)
