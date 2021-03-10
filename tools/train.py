@@ -213,6 +213,12 @@ def train():
 
     ## train loop
     for it, (im, lb) in enumerate(dl):
+        if (it==0) or ((it + 1) % 2000 == 0):
+            for val_set, val_dl in valid_dls.items():
+                logger.info('\nevaluating the model on: '+val_set)
+                heads, mious = eval_model(net,val_set,val_dl,it,dist)
+                logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
+                if (dist.get_rank() == 0): wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
         net.train()
         im = im.cuda()
         lb = lb.cuda()
@@ -258,12 +264,6 @@ def train():
                 state = net.module.state_dict()
                 torch.save(state, save_pth)
                 wandb.save(save_pth)
-        if (it==0) or ((it + 1) % 2000 == 0):
-            for val_set, val_dl in valid_dls.items():
-                logger.info('\nevaluating the model on: '+val_set)
-                heads, mious = eval_model(net,val_set,val_dl,it,dist)
-                logger.info(tabulate([mious, ], headers=heads, tablefmt='orgtbl'))
-                if (dist.get_rank() == 0): wandb.log({k:v for k,v in zip(heads,mious)},commit=False)
         if (dist.get_rank() == 0):
             wandb.log({"t":it},step=it)
     return
