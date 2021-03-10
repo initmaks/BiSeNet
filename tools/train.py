@@ -60,8 +60,8 @@ sensor_heights = [0.5,1.0,1.5]
 
 patterns = dict()
 for town,img_size,weather,sensor_h in itertools.product(towns,img_sizes,weather_options,sensor_heights):
-        pattern = f"{town}_{img_size}_{weather}_{sensor_h}"
-        patterns[pattern] = f"datasets/carla/sidewalk_{pattern}_*"
+    pattern = f"{town}_{img_size}_{weather}_{sensor_h}"
+    patterns[pattern] = f"datasets/carla/sidewalk_{pattern}_*"
 
 ## fix all random seeds
 torch.manual_seed(123)
@@ -185,7 +185,7 @@ def train():
     net, criteria_pre, criteria_aux = set_model()
 
     if dist.get_rank() == 0:
-        exp_name = "cityscapes+gta"
+        exp_name = "cityscapes+gta+carla_road[FT]"
         wandb.init(
             project="bisenet",
             name=exp_name

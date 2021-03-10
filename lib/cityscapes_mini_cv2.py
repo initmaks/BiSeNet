@@ -5,6 +5,7 @@ import os
 import os.path as osp
 import json
 import copy
+import glob
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -15,6 +16,7 @@ import numpy as np
 import lib.transform_cv2 as T
 from lib.sampler import RepeatedDistSampler
 from lib.base_dataset import BaseDataset, TransformationTrain, TransformationVal
+from lib.carla_sidewalk_cv2 import labels_info as carla_labels_info
 
 # "road_under"    : 0 
 # "road_after"    : 1 
@@ -124,6 +126,10 @@ class CityScapesMini(Dataset):
         self.gta_rd_lb_map = np.arange(256*3).astype(np.uint8)
         for el in gta_road_labels_info:
             self.gta_rd_lb_map[el['id']] = el['trainId']
+        
+        self.carla_lb_map = np.arange(256).astype(np.uint8)
+        for el in carla_labels_info:
+            self.carla_lb_map[el['id']] = el['trainId']
 
         self.to_tensor = T.ToTensor(
             mean=(0.3257, 0.3690, 0.3223), # city, rgb
@@ -144,6 +150,12 @@ class CityScapesMini(Dataset):
             self.img_paths.append(osp.join(dataroot, imgpth))
             self.lb_paths.append(osp.join(dataroot, lbpth))
             self.img_types.append(set_type)
+        
+        for img_pth in glob.glob(f"datasets/carla/road_*_rgb.png"):
+            lbpth = img_pth.replace("_rgb.png","_label.np.npy")
+            self.img_paths.append(img_pth)
+            self.lb_paths.append(lbpth)
+            self.img_types.append("carla_road")
 
         assert len(self.img_paths) == len(self.lb_paths)
 
@@ -153,6 +165,11 @@ class CityScapesMini(Dataset):
         if itype == "cs_road":
             label = cv2.imread(lbpth, 0)
             label = self.cs_lb_map[label]
+        elif "carla_road":
+            img = cv2.resize(img,(1024,512),interpolation=cv2.INTER_NEAREST)
+            label = np.load(lbpth,allow_pickle=True)
+            label = cv2.resize(label,(1024,512),interpolation=cv2.INTER_NEAREST)
+            label = self.carla_lb_map[label]
         else: # gta
             img = cv2.resize(img,(1024,512),interpolation=cv2.INTER_NEAREST)
             label = cv2.imread(lbpth)
