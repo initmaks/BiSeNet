@@ -258,7 +258,7 @@ def train():
                 state = net.module.state_dict()
                 torch.save(state, save_pth)
                 wandb.save(save_pth)
-        if ((it + 1) % 2000 == 0):
+        if (it==0) or ((it + 1) % 2000 == 0):
             for val_set, val_dl in valid_dls.items():
                 logger.info('\nevaluating the model on: '+val_set)
                 heads, mious = eval_model(net,val_set,val_dl,it,dist)
