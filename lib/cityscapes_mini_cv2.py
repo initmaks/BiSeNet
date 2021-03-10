@@ -16,7 +16,7 @@ import numpy as np
 import lib.transform_cv2 as T
 from lib.sampler import RepeatedDistSampler
 from lib.base_dataset import BaseDataset, TransformationTrain, TransformationVal
-from lib.carla_sidewalk_cv2 import labels_info as carla_labels_info
+from lib.carla_sidewalk_cv2 import road_labels_info as carla_labels_info
 
 # "road_under"    : 0 
 # "road_after"    : 1 
@@ -165,7 +165,7 @@ class CityScapesMini(Dataset):
         if itype == "cs_road":
             label = cv2.imread(lbpth, 0)
             label = self.cs_lb_map[label]
-        elif "carla_road":
+        elif itype == "carla_road":
             img = cv2.resize(img,(1024,512),interpolation=cv2.INTER_NEAREST)
             label = np.load(lbpth,allow_pickle=True)
             label = cv2.resize(label,(1024,512),interpolation=cv2.INTER_NEAREST)
